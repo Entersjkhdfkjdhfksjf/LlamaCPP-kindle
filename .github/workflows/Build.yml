@@ -1,0 +1,50 @@
+name: Build llama.cpp for Kindle (ARMv7)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout llama.cpp
+        uses: actions/checkout@v4
+        with:
+          repository: ggerganov/llama.cpp
+          ref: master
+
+      - name: Install cross compile toolchain
+        run: |
+          sudo apt update
+          sudo apt install -y gcc-arm-linux-gnueabi g++-arm-linux-gnueabi cmake
+
+      - name: Configure
+        run: |
+          cmake -B build \
+            -DCMAKE_C_COMPILER=arm-linux-gnueabi-gcc \
+            -DCMAKE_CXX_COMPILER=arm-linux-gnueabi-g++ \
+            -DCMAKE_SYSTEM_NAME=Linux \
+            -DCMAKE_SYSTEM_PROCESSOR=armv7 \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DLLAMA_BUILD_TESTS=OFF \
+            -DLLAMA_BUILD_EXAMPLES=ON \
+            -DGGML_NATIVE=OFF
+
+      - name: Build
+        run: cmake --build build --config Release -j$(nproc)
+
+      - name: Collect binaries
+        run: |
+          mkdir -p artifacts
+          cp build/bin/llama-cli artifacts/ || true
+          cp build/bin/llama-simple artifacts/ || true
+          cp build/bin/llama-server artifacts/ || true
+          file artifacts/*
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: llama-cpp-kindle-armv7
+          path: artifacts/
+          retention-days: 30
