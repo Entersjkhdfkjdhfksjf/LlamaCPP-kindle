@@ -17,7 +17,7 @@ jobs:
       - name: Install dependencies and toolchain
         run: |
           sudo apt update
-          sudo apt install -y cmake gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf musl-tools
+          sudo apt install -y cmake gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
 
       - name: Configure
         run: |
@@ -30,6 +30,7 @@ jobs:
             -DLLAMA_BUILD_TESTS=OFF \
             -DLLAMA_BUILD_EXAMPLES=ON \
             -DGGML_NATIVE=OFF \
+            -DBUILD_SHARED_LIBS=OFF \
             -DCMAKE_EXE_LINKER_FLAGS="-static"
 
       - name: Build
