@@ -34,7 +34,7 @@ jobs:
             -DCMAKE_EXE_LINKER_FLAGS="-static"
 
       - name: Build
-        run: cmake --build build --config Release -j$(nproc)
+        run: cmake --build build --config Release -j 1 --verbose
 
       - name: Collect binaries
         run: |
