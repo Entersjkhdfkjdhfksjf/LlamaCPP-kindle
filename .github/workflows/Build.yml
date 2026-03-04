@@ -31,17 +31,17 @@ jobs:
             -DLLAMA_BUILD_EXAMPLES=ON \
             -DGGML_NATIVE=OFF \
             -DBUILD_SHARED_LIBS=OFF \
+            -DGGML_OPENMP=OFF \
             -DCMAKE_EXE_LINKER_FLAGS="-static"
 
       - name: Build
-        run: cmake --build build --config Release -j 1 --verbose
+        run: cmake --build build --config Release -j$(nproc)
 
       - name: Collect binaries
         run: |
           mkdir -p artifacts
           cp build/bin/llama-cli artifacts/ || true
           cp build/bin/llama-simple artifacts/ || true
-          cp build/bin/llama-server artifacts/ || true
           file artifacts/*
 
       - name: Upload artifact
