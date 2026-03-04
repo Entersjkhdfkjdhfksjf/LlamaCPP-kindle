@@ -1,4 +1,4 @@
-name: Build llama.cpp for Kindle (ARMv7 musl)
+name: Build llama.cpp for Kindle (ARMv7 static)
 
 on:
   workflow_dispatch:
@@ -14,24 +14,23 @@ jobs:
           repository: ggerganov/llama.cpp
           ref: master
 
-      - name: Install dependencies and musl toolchain
+      - name: Install dependencies and toolchain
         run: |
           sudo apt update
-          sudo apt install -y cmake wget tar
-          wget https://musl.cc/arm-linux-musleabihf-cross.tgz
-          tar -xzf arm-linux-musleabihf-cross.tgz
+          sudo apt install -y cmake gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf musl-tools
 
       - name: Configure
         run: |
           cmake -B build \
-            -DCMAKE_C_COMPILER=$PWD/arm-linux-musleabihf-cross/bin/arm-linux-musleabihf-gcc \
-            -DCMAKE_CXX_COMPILER=$PWD/arm-linux-musleabihf-cross/bin/arm-linux-musleabihf-g++ \
+            -DCMAKE_C_COMPILER=arm-linux-gnueabihf-gcc \
+            -DCMAKE_CXX_COMPILER=arm-linux-gnueabihf-g++ \
             -DCMAKE_SYSTEM_NAME=Linux \
             -DCMAKE_SYSTEM_PROCESSOR=armv7 \
             -DCMAKE_BUILD_TYPE=Release \
             -DLLAMA_BUILD_TESTS=OFF \
             -DLLAMA_BUILD_EXAMPLES=ON \
-            -DGGML_NATIVE=OFF
+            -DGGML_NATIVE=OFF \
+            -DCMAKE_EXE_LINKER_FLAGS="-static"
 
       - name: Build
         run: cmake --build build --config Release -j$(nproc)
@@ -47,6 +46,6 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: llama-cpp-kindle-armv7-musl
+          name: llama-cpp-kindle-armv7-static
           path: artifacts/
           retention-days: 30
