@@ -21,8 +21,8 @@ jobs:
 
       - name: Download musl cross toolchain
         run: |
-          wget https://github.com/richfelker/musl-cross-make/releases/download/v0.9.9/arm-linux-musleabihf-cross.tgz
-          tar -xzf arm-linux-musleabihf-cross.tgz
+          wget https://github.com/just-containers/musl-cross-make/releases/download/v15/gcc-9.2.0-arm-linux-musleabihf.tar.xz
+          tar -xJf gcc-9.2.0-arm-linux-musleabihf.tar.xz
 
       - name: Configure
         run: |
