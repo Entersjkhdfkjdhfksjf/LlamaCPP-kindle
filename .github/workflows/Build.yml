@@ -1,4 +1,4 @@
-name: Build llama.cpp for Kindle (ARMv7 musl static)
+name: Build llama.cpp for Kindle (ARMv7 musl softfloat static)
 
 on:
   workflow_dispatch:
@@ -19,15 +19,15 @@ jobs:
           sudo apt update
           sudo apt install -y cmake make wget tar xz-utils
 
-      - name: Download musl cross toolchain
+      - name: Download musl soft float cross toolchain
         run: |
-          wget https://github.com/just-containers/musl-cross-make/releases/download/v15/gcc-9.2.0-arm-linux-musleabihf.tar.xz
-          tar -xJf gcc-9.2.0-arm-linux-musleabihf.tar.xz
+          wget https://github.com/just-containers/musl-cross-make/releases/download/v15/gcc-9.2.0-arm-linux-musleabi.tar.xz
+          tar -xJf gcc-9.2.0-arm-linux-musleabi.tar.xz
 
       - name: Configure
         run: |
-          GCC=$(realpath $(find . -name "arm-linux-musleabihf-gcc" | head -1))
-          GXX=$(realpath $(find . -name "arm-linux-musleabihf-g++" | head -1))
+          GCC=$(realpath $(find . -name "arm-linux-musleabi-gcc" | head -1))
+          GXX=$(realpath $(find . -name "arm-linux-musleabi-g++" | head -1))
           echo "GCC: $GCC"
           echo "GXX: $GXX"
           cmake -B build \
@@ -56,6 +56,6 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: llama-cpp-kindle-armv7-musl-static
+          name: llama-cpp-kindle-armv7-musl-softfloat
           path: artifacts/
           retention-days: 30
