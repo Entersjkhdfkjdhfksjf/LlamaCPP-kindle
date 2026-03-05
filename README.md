@@ -1,2 +1,2 @@
 # LlamaCPP-kindle
-Llama.cpp but for kindles
+Llama.cpp but for kindles lol
