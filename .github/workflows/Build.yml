@@ -23,7 +23,7 @@ jobs:
         run: |
           git clone https://github.com/richfelker/musl-cross-make.git
           cd musl-cross-make
-          printf 'TARGET = arm-linux-musleabihf\nCOMMON_CONFIG += CFLAGS="-g0 -O2" CXXFLAGS="-g0 -O2" LDFLAGS="-s"\nGCC_CONFIG += --with-arch=armv7-a --with-cpu=cortex-a9 --with-fpu=vfpv3 --with-float=hard --disable-nls\n' > config.mak
+          printf 'TARGET = arm-linux-musleabihf\nCOMMON_CONFIG += CFLAGS="-g0 -O2" CXXFLAGS="-g0 -O2" LDFLAGS="-s"\nGCC_CONFIG += --with-cpu=cortex-a9 --with-fpu=vfpv3 --with-float=hard --disable-nls\n' > config.mak
           cat config.mak
           make -j$(nproc)
           make install OUTPUT=$PWD/../toolchain
@@ -47,8 +47,8 @@ jobs:
             -DGGML_NATIVE=OFF \
             -DBUILD_SHARED_LIBS=OFF \
             -DGGML_OPENMP=OFF \
-            -DCMAKE_C_FLAGS="-march=armv7-a -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard" \
-            -DCMAKE_CXX_FLAGS="-march=armv7-a -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard" \
+            -DCMAKE_C_FLAGS="-mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard" \
+            -DCMAKE_CXX_FLAGS="-mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard" \
             -DCMAKE_EXE_LINKER_FLAGS="-static"
 
       - name: Build llama.cpp
