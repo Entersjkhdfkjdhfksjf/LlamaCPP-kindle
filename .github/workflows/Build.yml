@@ -21,8 +21,11 @@ jobs:
 
       - name: Download musl soft float cross toolchain
         run: |
-          wget https://github.com/just-containers/musl-cross-make/releases/download/v15/gcc-9.2.0-arm-linux-musleabi.tar.xz
-          tar -xJf gcc-9.2.0-arm-linux-musleabi.tar.xz
+          wget --timeout=60 https://musl.cc/arm-linux-musleabi-cross.tgz || \
+          wget --timeout=60 https://github.com/just-containers/musl-cross-make/releases/download/v15/gcc-9.2.0-arm-linux-musleabi.tar.xz
+          ls *.tgz *.tar.xz 2>/dev/null
+          tar -xzf arm-linux-musleabi-cross.tgz 2>/dev/null || tar -xJf gcc-9.2.0-arm-linux-musleabi.tar.xz 2>/dev/null
+          find . -name "arm-linux-musleabi-gcc" 2>/dev/null
 
       - name: Configure
         run: |
