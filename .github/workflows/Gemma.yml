@@ -2,9 +2,6 @@ name: Quantize Gemma-3-270m
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
 
 jobs:
   quantize:
@@ -27,22 +24,22 @@ jobs:
             -DGGML_NATIVE=OFF
           cmake --build build --config Release -j$(nproc) --target llama-quantize
 
-      - name: Download Q8 model
+      - name: Download F16 model from Unsloth
         run: |
-          wget https://huggingface.co/ggml-org/gemma-3-270m-GGUF/resolve/main/gemma-3-270m-Q8_0.gguf
+          wget https://huggingface.co/unsloth/gemma-3-270m-it-GGUF/resolve/main/gemma-3-270m-it-F16.gguf
           ls -lh *.gguf
 
       - name: Quantize
         run: |
-          ./llama.cpp/build/bin/llama-quantize gemma-3-270m-Q8_0.gguf gemma-3-270m-Q4_K_M.gguf Q4_K_M
-          ./llama.cpp/build/bin/llama-quantize gemma-3-270m-Q8_0.gguf gemma-3-270m-Q2_K.gguf Q2_K
+          ./llama.cpp/build/bin/llama-quantize gemma-3-270m-it-F16.gguf gemma-3-270m-it-Q4_K_M.gguf Q4_K_M
+          ./llama.cpp/build/bin/llama-quantize gemma-3-270m-it-F16.gguf gemma-3-270m-it-Q2_K.gguf Q2_K
           ls -lh *.gguf
 
       - name: Upload quantized models
         uses: actions/upload-artifact@v4
         with:
-          name: gemma-3-270m-quantized
+          name: gemma-3-270m-it-quantized
           path: |
-            gemma-3-270m-Q4_K_M.gguf
-            gemma-3-270m-Q2_K.gguf
+            gemma-3-270m-it-Q4_K_M.gguf
+            gemma-3-270m-it-Q2_K.gguf
           retention-days: 30
