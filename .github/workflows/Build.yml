@@ -24,13 +24,13 @@ jobs:
           git clone https://github.com/richfelker/musl-cross-make.git
           cd musl-cross-make
           cat > config.mak << 'CONF'
-          TARGET = arm-linux-musleabi
-          GCC_VER = 11.2.0
-          MUSL_VER = 1.2.2
-          BINUTILS_VER = 2.37
-          COMMON_CONFIG += CFLAGS="-g0 -O2" CXXFLAGS="-g0 -O2" LDFLAGS="-s"
-          GCC_CONFIG += --with-arch=armv7-a --with-mode=arm --disable-nls
-          CONF
+TARGET = arm-linux-musleabi
+GCC_VER = 11.2.0
+MUSL_VER = 1.2.2
+BINUTILS_VER = 2.39
+COMMON_CONFIG += CFLAGS="-g0 -O2" CXXFLAGS="-g0 -O2" LDFLAGS="-s"
+GCC_CONFIG += --with-arch=armv7-a --with-mode=arm --disable-nls
+CONF
           make -j$(nproc)
           make install OUTPUT=$PWD/../toolchain
           echo "Toolchain built successfully"
