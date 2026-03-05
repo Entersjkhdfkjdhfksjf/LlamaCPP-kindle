@@ -1,4 +1,4 @@
-name: Build llama.cpp for Kindle (ARMv7 static)
+name: Build llama.cpp for Kindle (ARMv7 musl via Alpine)
 
 on:
   workflow_dispatch:
@@ -6,24 +6,25 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container: alpine:latest
 
     steps:
+      - name: Install dependencies and toolchain
+        run: |
+          apk update
+          apk add git cmake make gcc g++ musl-dev cross-gcc-armhf cross-g++-armhf
+
       - name: Checkout llama.cpp
         uses: actions/checkout@v4
         with:
           repository: ggerganov/llama.cpp
           ref: master
 
-      - name: Install dependencies and toolchain
-        run: |
-          sudo apt update
-          sudo apt install -y cmake gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
-
       - name: Configure
         run: |
           cmake -B build \
-            -DCMAKE_C_COMPILER=arm-linux-gnueabihf-gcc \
-            -DCMAKE_CXX_COMPILER=arm-linux-gnueabihf-g++ \
+            -DCMAKE_C_COMPILER=armhf-alpine-linux-musl-gcc \
+            -DCMAKE_CXX_COMPILER=armhf-alpine-linux-musl-g++ \
             -DCMAKE_SYSTEM_NAME=Linux \
             -DCMAKE_SYSTEM_PROCESSOR=armv7 \
             -DCMAKE_BUILD_TYPE=Release \
@@ -32,6 +33,8 @@ jobs:
             -DGGML_NATIVE=OFF \
             -DBUILD_SHARED_LIBS=OFF \
             -DGGML_OPENMP=OFF \
+            -DCMAKE_C_FLAGS="-march=armv7-a -mfpu=vfpv3 -mfloat-abi=softfp" \
+            -DCMAKE_CXX_FLAGS="-march=armv7-a -mfpu=vfpv3 -mfloat-abi=softfp" \
             -DCMAKE_EXE_LINKER_FLAGS="-static"
 
       - name: Build
@@ -47,6 +50,6 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: llama-cpp-kindle-armv7-static
+          name: llama-cpp-kindle-armv7-musl
           path: artifacts/
           retention-days: 30
