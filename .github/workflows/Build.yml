@@ -1,4 +1,4 @@
-name: Build llama.cpp for Kindle (ARMv7 musl softfloat static)
+name: Build llama.cpp for Kindle (ARMv7 musl static)
 
 on:
   workflow_dispatch:
@@ -23,7 +23,7 @@ jobs:
         run: |
           git clone https://github.com/richfelker/musl-cross-make.git
           cd musl-cross-make
-          printf 'TARGET = arm-linux-musleabi\nCOMMON_CONFIG += CFLAGS="-g0 -O2" CXXFLAGS="-g0 -O2" LDFLAGS="-s"\nGCC_CONFIG += --with-arch=armv7-a --with-mode=arm --disable-nls\n' > config.mak
+          printf 'TARGET = arm-linux-musleabihf\nCOMMON_CONFIG += CFLAGS="-g0 -O2" CXXFLAGS="-g0 -O2" LDFLAGS="-s"\nGCC_CONFIG += --with-arch=armv7-a --with-cpu=cortex-a9 --with-fpu=vfpv3 --with-float=hard --disable-nls\n' > config.mak
           cat config.mak
           make -j$(nproc)
           make install OUTPUT=$PWD/../toolchain
@@ -32,8 +32,8 @@ jobs:
 
       - name: Configure llama.cpp
         run: |
-          GCC=$(realpath toolchain/bin/arm-linux-musleabi-gcc)
-          GXX=$(realpath toolchain/bin/arm-linux-musleabi-g++)
+          GCC=$(realpath toolchain/bin/arm-linux-musleabihf-gcc)
+          GXX=$(realpath toolchain/bin/arm-linux-musleabihf-g++)
           echo "GCC: $GCC"
           echo "GXX: $GXX"
           cmake -B build \
@@ -47,6 +47,8 @@ jobs:
             -DGGML_NATIVE=OFF \
             -DBUILD_SHARED_LIBS=OFF \
             -DGGML_OPENMP=OFF \
+            -DCMAKE_C_FLAGS="-march=armv7-a -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard" \
+            -DCMAKE_CXX_FLAGS="-march=armv7-a -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard" \
             -DCMAKE_EXE_LINKER_FLAGS="-static"
 
       - name: Build llama.cpp
@@ -62,6 +64,6 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: llama-cpp-kindle-armv7-musl-softfloat
+          name: llama-cpp-kindle-armv7-cortex-a9
           path: artifacts/
           retention-days: 30
