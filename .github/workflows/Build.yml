@@ -17,20 +17,29 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y cmake make wget tar xz-utils
+          sudo apt install -y cmake make wget tar xz-utils gcc g++ bison flex texinfo
 
-      - name: Download musl soft float cross toolchain
+      - name: Build musl cross toolchain from source
         run: |
-          wget --timeout=60 https://musl.cc/arm-linux-musleabi-cross.tgz || \
-          wget --timeout=60 https://github.com/just-containers/musl-cross-make/releases/download/v15/gcc-9.2.0-arm-linux-musleabi.tar.xz
-          ls *.tgz *.tar.xz 2>/dev/null
-          tar -xzf arm-linux-musleabi-cross.tgz 2>/dev/null || tar -xJf gcc-9.2.0-arm-linux-musleabi.tar.xz 2>/dev/null
-          find . -name "arm-linux-musleabi-gcc" 2>/dev/null
+          git clone https://github.com/richfelker/musl-cross-make.git
+          cd musl-cross-make
+          cat > config.mak << 'CONF'
+          TARGET = arm-linux-musleabi
+          GCC_VER = 11.2.0
+          MUSL_VER = 1.2.2
+          BINUTILS_VER = 2.37
+          COMMON_CONFIG += CFLAGS="-g0 -O2" CXXFLAGS="-g0 -O2" LDFLAGS="-s"
+          GCC_CONFIG += --with-arch=armv7-a --with-mode=arm --disable-nls
+          CONF
+          make -j$(nproc)
+          make install OUTPUT=$PWD/../toolchain
+          echo "Toolchain built successfully"
+          ls ../toolchain/bin/
 
-      - name: Configure
+      - name: Configure llama.cpp
         run: |
-          GCC=$(realpath $(find . -name "arm-linux-musleabi-gcc" | head -1))
-          GXX=$(realpath $(find . -name "arm-linux-musleabi-g++" | head -1))
+          GCC=$(realpath toolchain/bin/arm-linux-musleabi-gcc)
+          GXX=$(realpath toolchain/bin/arm-linux-musleabi-g++)
           echo "GCC: $GCC"
           echo "GXX: $GXX"
           cmake -B build \
@@ -46,7 +55,7 @@ jobs:
             -DGGML_OPENMP=OFF \
             -DCMAKE_EXE_LINKER_FLAGS="-static"
 
-      - name: Build
+      - name: Build llama.cpp
         run: cmake --build build --config Release -j$(nproc)
 
       - name: Collect binaries
