@@ -1,4 +1,4 @@
-name: Build llama.cpp for Kindle (ARMv7 musl via Alpine)
+name: Build llama.cpp for Kindle (ARMv7 musl static)
 
 on:
   workflow_dispatch:
@@ -6,25 +6,29 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: alpine:latest
 
     steps:
-      - name: Install dependencies and toolchain
-        run: |
-          apk update
-          apk add git cmake make gcc g++ musl-dev cross-gcc-armhf cross-g++-armhf
-
       - name: Checkout llama.cpp
         uses: actions/checkout@v4
         with:
           repository: ggerganov/llama.cpp
           ref: master
 
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y cmake make wget tar xz-utils
+
+      - name: Download musl cross toolchain
+        run: |
+          wget https://github.com/richfelker/musl-cross-make/releases/download/v0.9.9/arm-linux-musleabihf-cross.tgz
+          tar -xzf arm-linux-musleabihf-cross.tgz
+
       - name: Configure
         run: |
           cmake -B build \
-            -DCMAKE_C_COMPILER=armhf-alpine-linux-musl-gcc \
-            -DCMAKE_CXX_COMPILER=armhf-alpine-linux-musl-g++ \
+            -DCMAKE_C_COMPILER=$PWD/arm-linux-musleabihf-cross/bin/arm-linux-musleabihf-gcc \
+            -DCMAKE_CXX_COMPILER=$PWD/arm-linux-musleabihf-cross/bin/arm-linux-musleabihf-g++ \
             -DCMAKE_SYSTEM_NAME=Linux \
             -DCMAKE_SYSTEM_PROCESSOR=armv7 \
             -DCMAKE_BUILD_TYPE=Release \
@@ -50,6 +54,6 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: llama-cpp-kindle-armv7-musl
+          name: llama-cpp-kindle-armv7-musl-static
           path: artifacts/
           retention-days: 30
