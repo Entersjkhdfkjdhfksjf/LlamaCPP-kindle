@@ -23,15 +23,13 @@ jobs:
         run: |
           wget https://github.com/just-containers/musl-cross-make/releases/download/v15/gcc-9.2.0-arm-linux-musleabihf.tar.xz
           tar -xJf gcc-9.2.0-arm-linux-musleabihf.tar.xz
-          echo "--- extracted contents ---"
-          ls -la
           echo "--- looking for gcc ---"
           find . -name "arm-linux-musleabihf-gcc" 2>/dev/null
 
       - name: Configure
         run: |
-          GCC=$(find . -name "arm-linux-musleabihf-gcc" | head -1)
-          GXX=$(find . -name "arm-linux-musleabihf-g++" | head -1)
+          GCC=$(realpath $(find . -name "arm-linux-musleabihf-gcc" | head -1))
+          GXX=$(realpath $(find . -name "arm-linux-musleabihf-g++" | head -1))
           echo "GCC: $GCC"
           echo "GXX: $GXX"
           cmake -B build \
