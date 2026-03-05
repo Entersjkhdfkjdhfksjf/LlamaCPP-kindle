@@ -23,8 +23,6 @@ jobs:
         run: |
           wget https://github.com/just-containers/musl-cross-make/releases/download/v15/gcc-9.2.0-arm-linux-musleabihf.tar.xz
           tar -xJf gcc-9.2.0-arm-linux-musleabihf.tar.xz
-          echo "--- looking for gcc ---"
-          find . -name "arm-linux-musleabihf-gcc" 2>/dev/null
 
       - name: Configure
         run: |
@@ -43,8 +41,6 @@ jobs:
             -DGGML_NATIVE=OFF \
             -DBUILD_SHARED_LIBS=OFF \
             -DGGML_OPENMP=OFF \
-            -DCMAKE_C_FLAGS="-march=armv7-a -mfpu=vfpv3 -mfloat-abi=softfp" \
-            -DCMAKE_CXX_FLAGS="-march=armv7-a -mfpu=vfpv3 -mfloat-abi=softfp" \
             -DCMAKE_EXE_LINKER_FLAGS="-static"
 
       - name: Build
