@@ -1,0 +1,45 @@
+name: Quantize GGUF model
+
+on:
+  workflow_dispatch:
+
+jobs:
+  quantize:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y cmake make gcc g++ wget
+
+      - name: Build llama.cpp natively
+        run: |
+          git clone https://github.com/ggerganov/llama.cpp.git
+          cd llama.cpp
+          cmake -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DLLAMA_BUILD_TESTS=OFF \
+            -DLLAMA_BUILD_EXAMPLES=ON \
+            -DGGML_NATIVE=OFF
+          cmake --build build --config Release -j$(nproc) --target llama-quantize
+
+      - name: Download unquantized model
+        run: |
+          wget https://github.com/Entersjkhdfkjdhfksjf/LlamaCPP-kindle/releases/download/V0.1/gpt2-shrek-chaos.gguf
+          ls -lh *.gguf
+
+      - name: Quantize
+        run: |
+          ./llama.cpp/build/bin/llama-quantize gpt2-shrek-chaos.gguf gpt2-shrek-chaos-Q4_0.gguf Q4_0
+          ./llama.cpp/build/bin/llama-quantize gpt2-shrek-chaos.gguf gpt2-shrek-chaos-Q2_K.gguf Q2_K
+          ls -lh *.gguf
+
+      - name: Upload quantized models
+        uses: actions/upload-artifact@v4
+        with:
+          name: shrek-quantized
+          path: |
+            gpt2-shrek-chaos-Q4_0.gguf
+            gpt2-shrek-chaos-Q2_K.gguf
+          retention-days: 30
