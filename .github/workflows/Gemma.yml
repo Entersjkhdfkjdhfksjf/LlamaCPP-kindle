@@ -1,7 +1,10 @@
-name: Quantize Gemma GGUF model
+name: Quantize Gemma-3-270m
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - '**'
 
 jobs:
   quantize:
