@@ -6,14 +6,14 @@ Running [llama.cpp](https://github.com/ggerganov/llama.cpp) on a jailbroken Kind
 
 ---
 
-## Device Specs
+## Tested Device Specs
 
 | Property | Value |
 |----------|-------|
 | Device | Kindle Paperwhite 3 |
 | SoC | Freescale i.MX6SoloLite |
 | CPU | ARMv7 Cortex-A9 @ ~1GHz (single core) |
-| RAM | 512MB (no swap) |
+| RAM | 512MB (no swap, may work but I don't have any more storage maybe try and tell me) |
 | OS | Stock Kindle OS or Alpine Linux chroot |
 
 ---
